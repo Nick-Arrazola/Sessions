@@ -1,0 +1,60 @@
+/* After 16th: Add some type of live background  */
+
+body { 
+
+    /* Sets the root font-size */
+    font-size: 20px;
+}
+
+/* Creates a flex box so that we can center the div with black border.
+   Maybe, instead of using a flex box, we can center by using position*/
+#flex-container {
+
+    display: flex;
+    height: 100%;
+    /* border: 1px solid red; */
+    justify-content: center;
+    align-items: center;
+}
+
+
+#flex-container div {
+    border: 2px solid black;
+
+    /* Creates another flex so that we can center the title and buttons */
+    display: flex;
+    /* By default, flex changes the orientation of all child elements to be inline,
+     * but this will change it so that the children are laid out vertically */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    /* Changes the height and the width of this div of to 50% of the parent div */
+    height: 50%;
+    width: 50%;
+
+    padding: 10%
+}
+
+#flex-container div h1 {
+    /* border: 1px solid purple; */
+    font-size: 3rem;
+    flex: .3;
+}
+
+
+#flex-container div button {
+
+    width: 100%;
+    flex: .3;
+
+    border-radius: 0px;
+
+    font-size: 1.2rem;
+}
+
+/* TODO: Change the size of the height */
+#flex-container div button:hover {
+
+    width: 95%;
+}
