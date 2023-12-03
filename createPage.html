@@ -12,15 +12,27 @@
                 <span> Public </span>
                 <br>
 
-                <!-- This select is just temporary, not the final one -->
-                <select>
-                    <option> Rap </option>
-                    <option> Rock </option>
-                    <option> EDM </option>
-                    <option> House </option>
-                </select>
-            
-        
+                <div id="select-and-list-container">
+                    <div id="select-container" onclick="modifySelect()"> 
+
+                        <div id="tag-space"> </div>
+
+                        <button type="button" id="delete-btn"> &times; </button>
+
+                        <div id="divider"> </div>
+
+                        <div id="caret"> </div>
+
+                    </div>
+
+                    <ul class="unshow"> 
+                        <li> Rap </li>
+                        <li> Rock </li>
+                        <li> EDM </li>
+                        <li> HOUSE </li>
+                    </ul>
+                </div>
+    
             </div>
 
             <div id="private-bar">
@@ -36,6 +48,23 @@
             </div>
 
         </div>
+
+        <script>
+
+            let select_bar = null, is_open = false;
+
+            /* For toggling the list off and on */
+            function modifySelect() {
+
+                is_open = !is_open;
+
+                /* Should really only do one DOM traversal */
+                let ul_elem = select_bar || document.querySelector("ul");
+
+                ul_elem.setAttribute("class", (is_open) ? "show" : "unshow");
+            }
+
+        </script>
 
     </body>
 
