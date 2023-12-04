@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+    <title>Session</title>
+    
+    <style>
+        /* Style for red GO LIVE text */
+        #toggleStream {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 24px; 
+            color: red;
+
+            position: relative;
+            top: -5rem;
+        }
+
+        /* Style for black END LIVE text*/
+        #quitStream {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 24px; 
+            color: black;
+
+            position: relative;
+            top: -5rem;
+        }
+
+        /* Allows for "Chat" and "Streaming Status" headers to be within the same line */
+        #headerContainer {
+            display: flex; 
+            align-items: center;
+        }
+
+        /* Style for the red circle when stream is live */
+        #recordCircle {
+            display: none; /* Initially hide the circle */
+            width: 35px;
+            height: 35px;
+            background-color: red;
+            border-radius: 50%;
+            animation-name: pulse;
+            animation-duration: 1.5s;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-in-out;
+            display: inline-block;
+
+            position: relative;
+            top: 1rem;
+        }
+
+        /* Animates the live red circle */
+        @keyframes pulse {
+            0%{
+                box-shadow: 0px 0px 5px 0px rgba(173,0,0,.3);
+            }
+            65%{
+                box-shadow: 0px 0px 5px 10px rgba(173,0,0,.3);
+            }
+            90%{
+                box-shadow: 0px 0px 5px 10px rgba(173,0,0,0);
+            }
+        }
+
+        /* Bolds the stream buttons when clicked */
+        .streamButtons:active {
+            font-weight: bold;
+        }
+
+        /* Lines up the stream box (temporary) */
+        #stream {
+            position: relative;
+            top: -5rem;
+            width: 50rem;
+            height: 30rem;
+        }
+
+        /* Lines up the chat header */
+        #chatHeader {
+            position: relative;
+            left: 70.5rem;
+            top: -5rem;
+        }
+
+        /* Lines up the chat box (temporary) */
+        #chatBox {
+            position: relative;
+            left: 20rem;
+            top: -5rem;
+            height: 30rem;
+            width: 15rem;
+        }
+
+        /* Lines up the "Info." button */
+        #infoButton {
+            position: absolute;
+            left: 90rem;
+            top: 2rem;
+        }
+
+        /* Creates popup and styles it */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+
+            line-height: 2;
+        }
+
+        /* Lines up file folder (temporary) */
+        #fileFolder {
+            position: relative;
+            left: 55rem;
+            top: 16rem;
+        }
+
+        /* Lines up stream status position */
+        #streamStatus {
+            position: relative;
+            top: 1rem;
+        }
+    </style>
+
+</head>
+
+<body>
+    <!-- div that allows us to have to headers within the same line -->
+    <div id="headerContainer">
+        <!-- div for innerHTML that changes stream status depending if user is live or not -->
+        <h1><div id="streamStatus"></div></h1>
+        &nbsp;&nbsp;&nbsp;<div id="recordCircle"></div>
+    </div>    
+    <!-- line 144 will be where the user can store files (INCOMPLETE) -->
+    <input type="text" value="Files go here?" id="fileFolder">
+
+    <h2><div id="chatHeader">CHAT</div></h2>
+
+    <!-- Line 149 will be where we code the actual screen (INCOMPLETE) -->
+    <input type="text" value="Cookin lil booty call type beats" id="stream"> 
+    <!-- Line 150 will be the chat box when implemented (INCOMPLETE) -->
+    <input type="text" value="Type here" id="chatBox">
+    <input type="button" value="Info." id="infoButton"> 
+
+    <!-- Creates a popup -->
+    <div class="popup" id="infoPopup">
+        <!-- list to display all the information of the session -->
+        <p><b>Session Information</b></p>
+        <ul>
+            <li>Genre: <!-- EJS VARIABLE HERE --></li> 
+            <li>Date Started: <!-- EJS VARIABLE HERE --></li>
+            <li>Number of Files: <!-- EJS VARIABLE HERE --></li>
+            <li>Collaborators: <!-- EJS VARIABLE HERE --></li>
+            <li>Visibility: <!-- EJS VARIABLE HERE --></li>
+            <li>Session ID: <!-- EJS VARIABLE HERE --></li>
+            <li>Number of Viewers: <!-- EJS VARIABLE HERE --></li>
+        </ul>
+    </div>
+
+    <br> <br>
+
+    <!-- Red Button -->
+    <button id="toggleStream" class="streamButtons">GO LIVE</button>
+    
+    <!-- Black Button -->
+    <button id="quitStream" class="streamButtons">END LIVE</button>
+
+    <script>
+        "use strict";
+
+        // Initializes the stream to be on standby
+        document.getElementById("streamStatus").innerHTML = "STANDBY";
+        document.getElementById("recordCircle").style.display = "none";
+
+        // When clicked, stream will start and be live
+        document.querySelector("#toggleStream").onclick = () => {
+            document.getElementById("streamStatus").innerHTML = "LIVE";
+            let streamState = document.getElementById("streamStatus");
+            streamState.style.color = "red";
+
+            // Record symbol appears when the user goes live
+            document.getElementById("recordCircle").style.display = "block";
+        }
+
+        // When clicked, stream will end and will be on 'standby'
+        document.querySelector("#quitStream").onclick = () => {
+            document.getElementById("streamStatus").innerHTML = "STANDBY"
+            let streamStop = document.getElementById("streamStatus");
+            streamStop.style.color = "black";
+
+            // Turns off the record symbol when stream quits
+            document.getElementById("recordCircle").style.display = "none";
+        }
+
+        // Event listener to set up a pop up when the "Info. button is clicked"
+        document.addEventListener('DOMContentLoaded', function () {
+            // Allows pop up to function
+            infoButton.addEventListener('click', function (event) {
+                event.stopPropagation(); 
+                infoPopup.style.display = 'block';
+            });
+        
+            // Closes pop up when the user clicks off of it
+            document.addEventListener('click', function (event) {
+                let isClickInsidePopup = infoPopup.contains(event.target);
+                let isClickOnInfoButton = (event.target === infoButton);
+        
+                if (!isClickInsidePopup && !isClickOnInfoButton) {
+                    infoPopup.style.display = 'none';
+                }
+            });
+
+            // Closes pop up when the user clicks "esc"
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    infoPopup.style.display = 'none';
+                }
+            });
+
+        });
+
+    </script>
+</body>
+</html>

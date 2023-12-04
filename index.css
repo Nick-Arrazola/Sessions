@@ -4,6 +4,9 @@ body {
 
     /* Sets the root font-size */
     font-size: 20px;
+
+    /* Imports custom font */
+    font-family: 'trip-sans-variable';
 }
 
 /* Creates a flex box so that we can center the div with black border.
@@ -55,6 +58,17 @@ body {
 
 /* TODO: Change the size of the height */
 #flex-container div button:hover {
-
+    /* Shrinks text and button down to same size */
+    height: 95%;
     width: 95%;
+    font-size: 95%;
+    
 }
+
+@font-face {
+    font-family: 'trip-sans-variable';
+    /* Pulls file from current diretory and imports it into our project */
+    src: url('trip-sans-variable.ttf') format('truetype'); 
+}
+
+  
