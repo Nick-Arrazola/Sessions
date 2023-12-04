@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <!-- Will makes a GET request to the 'assets' endpoint speciying the desired css file -->
+        <link rel="stylesheet" href="/assets/joinPage.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/habibmhamadi/multi-select-tag@2.0.1/dist/css/multi-select-tag.css">
+    </head>
+
+    <body>
+
+        <div id="flex-container">
+
+            <div id="public-bar">
+                <span> Public </span>
+                <br>
+
+                <!-- Might need to add my own submit button next to the select to send POST req -->
+                <div id="title-and-select-container">
+                    <span> Filter By Genres </span>
+
+                    <!-- Surronded the select bar in another div so that I could style the select -->
+                    <div id="select-container">
+                        <select id="genres-select"> 
+                            <option> Rap </option>
+                            <option> Rock </option>
+                            <option> EDM </option>
+                            <option> HOUSE </option>
+                        </select>
+                    </div>
+
+                    <button type="button" id="select-btn" onclick="buttonClick()">
+                        Apply Filter
+                    </button>
+
+                </div>
+
+                <div id="display-area">
+
+                </div>
+
+            </div>
+
+            <div id="private-bar">
+
+                <span> Private </span>
+                <br>
+                <div id="input-container">
+                    <span> Type in key </span>
+                    
+                    <input type="text" placeholder="abc123. . .">
+                </div>
+
+                
+            </div>
+
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/gh/habibmhamadi/multi-select-tag@2.0.1/dist/js/multi-select-tag.js"></script>
+
+        <script>
+
+            /* This function will retrieve the tags selected, then perform a GET request to the backend */
+            function buttonClick() {
+
+                let select_bar = document.querySelector("div.input-container");
+
+                /* Converts this HTML collection into an array of HTMLElements */
+                let tag_arr = [...(select_bar.children)];
+
+                console.log(tag_arr)
+
+                let JSON = tag_arr.reduce( (acc, h) => {
+                    
+                    let label = h.children[0].getAttribute('data-value');
+                    acc.push(label);
+
+                    return acc;
+                }, [] );
+                
+                // Axios.get("/endpoint", {JSON})
+
+                /* Will get back JSON from the GET request, then will extract each session from the JSON, then
+                 * will need to pass in each session obj to a function that converts them into a div, then
+                 * once we have this area of divs, we will display them in the 'display-area' using maybe innerhtml */
+                
+            }
+
+            /* Add event listener for the private input element */
+            document.querySelector("#input-container input").addEventListener("keydown", (e) => {
+
+                
+                if (e.key !== "Enter") { return; }
+
+                /* TODO: Extract value, the perform a POST request to the back end */
+                console.log("In input");
+            });
+
+            new MultiSelectTag('genres-select', {
+                rounded: true,
+            });
+
+            let display_area = document.querySelector("#display-area");
+
+            /* TODO: Perform a GET request that retrieves all of the public sessions.
+             *       The reason is so that we can filter based on tag on front end.
+             */
+
+            
+        </script>
+
+    </body>
+
+</html>

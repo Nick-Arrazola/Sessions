@@ -1,0 +1,72 @@
+/* TODO after 16th: Add some type of live background  */
+
+body { 
+
+    /* Sets the root font-size */
+    font-size: 20px;
+
+    /* The body will use up 100% of the viewport height */
+    height: 100vh;
+
+    /* border: 1px solid red; */
+}
+
+/* Creates a flex box so that we can center the div with black border.
+   Maybe, instead of using a flex box, we can center by using position*/
+#flex-container {
+
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    /* background-color: white; */
+    /* border: 1px solid green; */
+}
+
+#flex-container div {
+
+    border: 2px solid black;
+    /* background-color: white; */
+    
+    /* Creates another flex so that we can center the title and buttons */
+    display: flex;
+    /* By default, flex changes the orientation of all child elements to be inline,
+     * but this will change it so that the children are laid out vertically */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    /* Changes the height and the width of this div of to 50% of the parent div */
+    height: 50%;
+    width: 50%;
+}
+
+#flex-container div h1 {
+    /* border: 1px solid purple; */
+    font-size: 3rem;
+    flex: .3;
+}
+
+#flex-container div a {
+
+    width: 100%;
+
+    /* Making the anchor tag a flex box, so that I can
+     * center the interior button horizontally and vertically */
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    text-decoration: none; /* gets rid of the link underline */
+
+    /* border: 1px solid purple; */
+} 
+
+#flex-container div button {
+
+    border-radius: 0px;
+    font-size: 1.2rem;
+    width: 67%;
+}
+
+/* TODO: Change the size of the height */
+#flex-container div button:hover { width: 64%; background-color: rgb(206, 206, 206);}
