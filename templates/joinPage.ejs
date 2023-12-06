@@ -21,7 +21,8 @@
 
                     <!-- Surronded the select bar in another div so that I could style the select -->
                     <div id="select-container">
-                        <select id="genres-select"> 
+                        <select id="genres-select" multiple>
+
                             <option> Rap </option>
                             <option> Rock </option>
                             <option> EDM </option>
@@ -96,11 +97,11 @@
                 console.log("In input");
             });
 
+            let display_area = document.querySelector("#display-area");
+
             new MultiSelectTag('genres-select', {
                 rounded: true,
             });
-
-            let display_area = document.querySelector("#display-area");
 
             /* TODO: Perform a GET request that retrieves all of the public sessions.
              *       The reason is so that we can filter based on tag on front end.

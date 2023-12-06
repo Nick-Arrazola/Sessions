@@ -1,122 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/sessions.css">
-    <title>Session</title>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/assets/sessions.css">
+        <title>Session</title>
+    </head>
 
-<body>
+    <body>
 
-    <!-- This div contains the three main containers: stream, file-select, chat -->
-    <div id="top-div">
-        <!-- div that allows us to have to headers within the same line -->
-        <div id="stream-and-header-container">
+        <!-- This div contains the three main containers: stream, file-select, chat -->
+        <div id="top-div">
+            <!-- div that allows us to have to headers within the same line -->
+            <div id="stream-and-header-container">
+                
+                <div id="header-div">
+                    <!-- div for innerHTML that changes stream status depending if user is live or not -->
+                    <span id="streamStatus"> </span>
+                    <span id="recordCircle"> </span>
+                </div>
             
-            <div id="header-div">
-                <!-- div for innerHTML that changes stream status depending if user is live or not -->
-                <span id="streamStatus"> </span>
-                <span id="recordCircle"> </span>
+                <!-- Line 149 will be where we code the actual screen (INCOMPLETE) -->
+                <div id="stream-container"> 
+                    <div id="stream"> Cookin lil booty call type beats </div>
+                </div>
+            </div>    
+            
+            <div id="file-div"> 
+                <!-- line 144 will be where the user can store files (INCOMPLETE) -->
+                <input type="text" value="Files go here?" id="fileFolder">
             </div>
-          
-            <!-- Line 149 will be where we code the actual screen (INCOMPLETE) -->
-            <div id="stream"> Cookin lil booty call type beats </div>
-        </div>    
-        
-        <div id="file-div"> 
-            <!-- line 144 will be where the user can store files (INCOMPLETE) -->
-            <input type="text" value="Files go here?" id="fileFolder">
+
+            <div id="chat-div">
+                <div id="chatHeader"> CHAT </div>
+                <!-- Line 150 will be the chat box when implemented (INCOMPLETE) -->
+                <textarea type="text" value="Type here" id="chatBox"> </textarea>
+            </div> 
+
+            <!-- Creates a popup -->
+            <!-- TODO: need to make popup a form. What if selected a button call like 'change', then that created a new popup from-->
+            <div class="popup" id="infoPopup">
+                <!-- list to display all the information of the session -->
+                <p><b>Session Information</b></p>
+                <ul>
+                    <li>Genre: <!-- EJS VARIABLE HERE --></li> 
+                    <li>Date Started: <!-- EJS VARIABLE HERE --></li>
+                    <li>Number of Files: <!-- EJS VARIABLE HERE --></li>
+                    <li>Collaborators: <!-- EJS VARIABLE HERE --></li>
+                    <li>Visibility: <!-- EJS VARIABLE HERE --></li>
+                    <li>Session ID: <!-- EJS VARIABLE HERE --></li>
+                    <li>Number of Viewers: <!-- EJS VARIABLE HERE --></li>
+                </ul>
+            </div>
         </div>
 
-        <div id="chat-div">
-            <h2><div id="chatHeader">CHAT</div></h2>
-            <!-- Line 150 will be the chat box when implemented (INCOMPLETE) -->
-            <input type="text" value="Type here" id="chatBox">
-        </div> 
+        <!-- The div contains the start recording, end recording, and info buttons -->
+        <div id="bottom-div">
+            <!-- Red Button -->
+            <button id="toggleStream" class="streamButtons">GO LIVE</button>
+            
+            <!-- Black Button -->
+            <button id="quitStream" class="streamButtons">END LIVE</button>
 
-        <!-- Creates a popup -->
-        <!-- TODO: need to make popup a form. What if selected a button call like 'change', then that created a new popup from-->
-        <div class="popup" id="infoPopup">
-            <!-- list to display all the information of the session -->
-            <p><b>Session Information</b></p>
-            <ul>
-                <li>Genre: <!-- EJS VARIABLE HERE --></li> 
-                <li>Date Started: <!-- EJS VARIABLE HERE --></li>
-                <li>Number of Files: <!-- EJS VARIABLE HERE --></li>
-                <li>Collaborators: <!-- EJS VARIABLE HERE --></li>
-                <li>Visibility: <!-- EJS VARIABLE HERE --></li>
-                <li>Session ID: <!-- EJS VARIABLE HERE --></li>
-                <li>Number of Viewers: <!-- EJS VARIABLE HERE --></li>
-            </ul>
+            <button type="button" id="infoButton"> SESSION INFO </button>
         </div>
-    </div>
 
-    <!-- The div contains the start recording, end recording, and info buttons -->
-    <div id="bottom-div">
-        <!-- Red Button -->
-        <button id="toggleStream" class="streamButtons">GO LIVE</button>
-        
-        <!-- Black Button -->
-        <button id="quitStream" class="streamButtons">END LIVE</button>
+        <script>
+            "use strict";
 
-        <button type="button" id="infoButton"> SESSION INFO </button>
-    </div>
-
-    <script>
-        "use strict";
-
-        // Initializes the stream to be on standby
-        document.getElementById("streamStatus").innerHTML = "STANDBY";
-        document.getElementById("recordCircle").style.display = "none";
-
-        // When clicked, stream will start and be live
-        document.querySelector("#toggleStream").onclick = () => {
-            document.getElementById("streamStatus").innerHTML = "LIVE";
-            let streamState = document.getElementById("streamStatus");
-            streamState.style.color = "red";
-
-            // Record symbol appears when the user goes live
-            document.getElementById("recordCircle").style.display = "inline-block";
-        }
-
-        // When clicked, stream will end and will be on 'standby'
-        document.querySelector("#quitStream").onclick = () => {
-            document.getElementById("streamStatus").innerHTML = "STANDBY"
-            let streamStop = document.getElementById("streamStatus");
-            streamStop.style.color = "black";
-
-            // Turns off the record symbol when stream quits
+            // Initializes the stream to be on standby
+            document.getElementById("streamStatus").innerHTML = "STANDBY";
             document.getElementById("recordCircle").style.display = "none";
-        }
 
-        // Event listener to set up a pop up when the "Info. button is clicked"
-        document.addEventListener('DOMContentLoaded', function () {
-            // Allows pop up to function
-            infoButton.addEventListener('click', function (event) {
-                event.stopPropagation(); 
-                infoPopup.style.display = 'block';
+            // When clicked, stream will start and be live
+            document.querySelector("#toggleStream").onclick = () => {
+                document.getElementById("streamStatus").innerHTML = "LIVE";
+                let streamState = document.getElementById("streamStatus");
+                streamState.style.color = "red";
+
+                // Record symbol appears when the user goes live
+                document.getElementById("recordCircle").style.display = "inline-block";
+            }
+
+            // When clicked, stream will end and will be on 'standby'
+            document.querySelector("#quitStream").onclick = () => {
+                document.getElementById("streamStatus").innerHTML = "STANDBY"
+                let streamStop = document.getElementById("streamStatus");
+                streamStop.style.color = "white";
+
+                // Turns off the record symbol when stream quits
+                document.getElementById("recordCircle").style.display = "none";
+            }
+
+            // Event listener to set up a pop up when the "Info. button is clicked"
+            document.addEventListener('DOMContentLoaded', function () {
+                // Allows pop up to function
+                infoButton.addEventListener('click', function (event) {
+                    event.stopPropagation(); 
+                    infoPopup.style.display = 'block';
+                });
+            
+                // Closes pop up when the user clicks off of it
+                document.addEventListener('click', function (event) {
+                    let isClickInsidePopup = infoPopup.contains(event.target);
+                    let isClickOnInfoButton = (event.target === infoButton);
+            
+                    if (!isClickInsidePopup && !isClickOnInfoButton) {
+                        infoPopup.style.display = 'none';
+                    }
+                });
+
+                // Closes pop up when the user clicks "esc"
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape') {
+                        infoPopup.style.display = 'none';
+                    }
+                });
+
             });
-        
-            // Closes pop up when the user clicks off of it
-            document.addEventListener('click', function (event) {
-                let isClickInsidePopup = infoPopup.contains(event.target);
-                let isClickOnInfoButton = (event.target === infoButton);
-        
-                if (!isClickInsidePopup && !isClickOnInfoButton) {
-                    infoPopup.style.display = 'none';
-                }
-            });
 
-            // Closes pop up when the user clicks "esc"
-            document.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape') {
-                    infoPopup.style.display = 'none';
-                }
-            });
-
-        });
-
-    </script>
-</body>
+        </script>
+    </body>
 </html>

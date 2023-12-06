@@ -7,6 +7,7 @@ body {
 
     /* The body will use up 100% of the viewport height */
     height: 100vh;
+    font-family: 'trip-sans-variable', sans-serif;
 
     /* border: 1px solid red; */
 }
@@ -70,3 +71,9 @@ body {
 
 /* TODO: Change the size of the height */
 #flex-container div button:hover { width: 64%; background-color: rgb(206, 206, 206);}
+
+@font-face {
+    font-family: 'trip-sans-variable';
+    /* Pulls file from current diretory and imports it into our project */
+    src: url('trip-sans-variable.ttf') format('truetype'); 
+}

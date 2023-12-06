@@ -5,6 +5,7 @@ body {
 
     /* The body will use up 100% of the viewport height */
     height: 100vh;
+    font-family: 'trip-sans-variable', sans-serif;
 
     /* border: 1px solid red; */
 }
@@ -106,4 +107,10 @@ body {
     border-radius: 0px;
 
     font-size: 1.5rem;
+}
+
+@font-face {
+    font-family: 'trip-sans-variable';
+    /* Pulls file from current diretory and imports it into our project */
+    src: url('trip-sans-variable.ttf') format('truetype'); 
 }
