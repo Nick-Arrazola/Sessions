@@ -12,7 +12,7 @@
         <div id="flex-container">
 
             <div id="public-bar">
-                <span> Public </span>
+                <span id="public-text"> Public </span>
                 <br>
 
                 <!-- Might need to add my own submit button next to the select to send POST req -->
@@ -22,17 +22,9 @@
                     <!-- Surronded the select bar in another div so that I could style the select -->
                     <div id="select-container">
                         <select id="genres-select" multiple>
-
-                            <option> Rap </option>
-                            <option> Rock </option>
-                            <option> EDM </option>
-                            <option> HOUSE </option>
+                            <!-- Options will be injected through javascript -->
                         </select>
                     </div>
-
-                    <button type="button" id="select-btn" onclick="buttonClick()">
-                        Apply Filter
-                    </button>
 
                 </div>
 
@@ -49,9 +41,8 @@
                 <div id="input-container">
                     <span> Type in key </span>
                     
-                    <input type="text" placeholder="abc123. . .">
+                    <input type="text" id="private-key-input" placeholder="abc123. . .">
                 </div>
-
                 
             </div>
 
@@ -61,53 +52,122 @@
 
         <script>
 
-            /* This function will retrieve the tags selected, then perform a GET request to the backend */
-            function buttonClick() {
-
-                let select_bar = document.querySelector("div.input-container");
-
-                /* Converts this HTML collection into an array of HTMLElements */
-                let tag_arr = [...(select_bar.children)];
-
-                console.log(tag_arr)
-
-                let JSON = tag_arr.reduce( (acc, h) => {
-                    
-                    let label = h.children[0].getAttribute('data-value');
-                    acc.push(label);
-
-                    return acc;
-                }, [] );
+            async function getPublicSessions() {
                 
-                // Axios.get("/endpoint", {JSON})
+                let response = await fetch("/join/public");
+                let json = await response.json();
 
-                /* Will get back JSON from the GET request, then will extract each session from the JSON, then
-                 * will need to pass in each session obj to a function that converts them into a div, then
-                 * once we have this area of divs, we will display them in the 'display-area' using maybe innerhtml */
-                
+                display_area.innerHTML = "";
+                json.forEach( (elem => { 
+
+                    display_area.innerHTML += convertToDiv(elem);
+
+                }));
             }
 
-            /* Add event listener for the private input element */
-            document.querySelector("#input-container input").addEventListener("keydown", (e) => {
+            /* This function will retrieve the tags selected, then perform a GET request to the backend */
+            async function buttonClick(tags_selected) {
 
-                
+                console.log(tags_selected)
+
+                let query_args, response, json;               
+
+                /* Constructs the query arguments out of the array of tags */
+                query_args = tags_selected.reduce( (acc, h, ind) => {
+                                        
+                    /* if we are at the last index of the arr, then don't include '&' */
+                    return acc + `genreTags=${h.label}` +  "&";
+
+                }, "" );
+                                
+                response = await fetch("/join/public?" + query_args);
+                json = await response.json();
+
+                display_area.innerHTML = "";
+                json.forEach( (elem => { 
+
+                    display_area.innerHTML += convertToDiv(elem);
+
+                }));
+            }
+
+            function convertToDiv(sessionObj) {
+
+                console.log(sessionObj)
+
+                /* TODO: Need to give the card's a certain flex unit so that they maintain the same size, 
+                 * so that when you have a larger screen they don't just stretch to maintain three a row.
+                 * In that scenario, they would look start to look ugly, what would be better is if they all
+                 * maintained the same size, but if the screen was larger, instead of stretching them, we would
+                 * just fit more of them on the row.
+                 */
+
+                return "<div class=\"card\">" + 
+                            "<div class=\"card-pic\">" + 
+
+                            "</div>" + 
+
+                            "<div class=\"card-info\">" +
+                                `<h3> ${sessionObj.session_name} </h3>` +
+                                `<p> ${sessionObj.daw_type} </p>` +  
+                                `<div id=\"tag-container\"> ${convertToTags(sessionObj.genre)} </div>` +
+                                // `<p> ${sessionObj.info} </p>` +
+                            "</div>"
+                        "</div>";
+            }
+
+            /* Will be more handy when we have to display multiple tags instead of 1 */
+            function convertToTags(genres) {
+
+                return `<span class=\"tag\"> ${genres} </span>`;
+            }
+
+            /* Copied and pasted from the other file, NOT GOOD! 
+             * Anyways, just initializes the select html element with given labels */
+            function initSelect(select_ptr, value_arr) {
+
+                let option_lst = value_arr.reduce( ((acc, h) => acc + `<option> ${h} </option>`), "<option> </option>" );
+                select_ptr.innerHTML = option_lst;
+
+                return;
+            }
+
+            /* Add more genres and DAWs as needed */
+            const genre_arr = ["Pop", "Rock", "Hip Hop", "Rap", "Country", "Jazz", "Blues", "Classical",
+                               "Electronic", "Dance", "Reggae", "Metal", "Indie", "Folk", "R&B", "Soul",
+                               "Funk", "Punk", "Alternative", "Bluegrass", "World", "Reggaeton", "Latin",
+                               "Gospel", "Instrumental", "Ambient", "Techno", "House", "Trance"];
+
+            let display_area = document.querySelector("#display-area");
+            let genre_select = document.querySelector("#genres-select");
+            let private_textbox = document.querySelector("#private-key-input");
+            
+            /* Checks if ENTER key was pressed down in the textbox */
+            private_textbox.addEventListener("keydown", (e) => {
+
                 if (e.key !== "Enter") { return; }
 
                 /* TODO: Extract value, the perform a POST request to the back end */
                 console.log("In input");
             });
 
-            let display_area = document.querySelector("#display-area");
+            /* Needed to call this function before calling the 'MultiSelectTag' constructor otherwise
+             * it would try to create the multiselect bar without having any '<option> </option>'  */
+            initSelect(genre_select, genre_arr);
 
+            /* This creates the multiselect functionality described
+             * in the README found here: https://github.com/habibmhamadi/multi-select-tag */
             new MultiSelectTag('genres-select', {
                 rounded: true,
+                onChange: buttonClick
             });
+
+            getPublicSessions();
 
             /* TODO: Perform a GET request that retrieves all of the public sessions.
              *       The reason is so that we can filter based on tag on front end.
              */
 
-            
         </script>
 
     </body>
