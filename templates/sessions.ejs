@@ -4,7 +4,11 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="/assets/sessions.css">
+
+        
+
         <title>Session</title>
+    
     </head>
 
     <body>
@@ -22,7 +26,7 @@
             
                 <!-- Line 149 will be where we code the actual screen (INCOMPLETE) -->
                 <div id="stream-container"> 
-                    <div id="stream"> Cookin lil booty call type beats </div>
+                    
                 </div>
             </div>    
             
@@ -32,9 +36,9 @@
             </div>
 
             <div id="chat-div">
-                <div id="chatHeader"> CHAT </div>
+                <div id="chat-box">  </div>
                 <!-- Line 150 will be the chat box when implemented (INCOMPLETE) -->
-                <textarea type="text" value="Type here" id="chatBox"> </textarea>
+                <input type="text" id="chat-input" placeholder="Type here ...">
             </div> 
 
             <!-- Creates a popup -->
@@ -65,8 +69,144 @@
             <button type="button" id="infoButton"> SESSION INFO </button>
         </div>
 
+
+        <!-- imports PeerJS and SocketIO on the client side -->
+        <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" > </script>
+        <script src="/socket.io/socket.io.js" ></script>
+
         <script>
             "use strict";
+
+            let arr_of_data_connections = [], chat_box = document.querySelector("#chat-box");
+
+            function addVideoToHTML(vid_stream) {
+                /* TODO: place the given stream into some html container */
+
+                let stream_container = document.querySelector("#stream-container");
+                let video_elem = document.createElement("video");
+
+                video_elem.setAttribute("class", "stream");
+
+                video_elem.srcObject = vid_stream;
+                video_elem.addEventListener("loadedmetadata", () => {
+                    video_elem.play();
+                });
+
+                stream_container.appendChild(video_elem);
+            }
+
+            function addMessageToChat(message) {
+
+                let message_div = document.createElement('div');
+                message_div.innerText = message;
+                chat_box.appendChild(message_div);
+                
+                return;
+            }
+
+            async function getVideoAndAddHandlers() {
+
+                /* returns a MediaStream containing my video and audio */
+                const my_stream = await (navigator.mediaDevices).getUserMedia( {video: true, audio: true } );
+                
+                /* creates socket that connects to the server found at localhost root path */
+                const socket = io("/"), my_peer = new Peer(), sessID = "<%= roomID %>";
+                
+                /* This event occurs when a connection with the peer server is established.
+                 * Once it's established, we get back our peer id, so that's when we want to join 
+                 * the socket room, so we can send them our ID and connect with the other sockets */
+                my_peer.on("open", (myPeerID) => {
+
+
+                    console.log("My ID: " + myPeerID);
+
+                    socket.emit("join-room", sessID, myPeerID);
+                });
+
+                /* Adding event listener on our socket that listens for a new socket joining.
+                 * When a new socket has joined the socket group, then we'll be sent their PeerID.
+                 * At this point, we want to establish a connection with the peer whose PeerID we have.
+                 * To do this, we 'call' them, this creates the connection between us. Then, we need to add
+                 * an event listener to this connection in case the remote peer sends their own stream to us.
+                 */
+                socket.on('viewer joining', (joiningPeerID) => {
+
+                    let media_connection_start = my_peer.call(joiningPeerID, my_stream);
+                    media_connection_start.on("stream", (viewersStream) => {
+
+                        /* Explain the if */
+                        if (viewersStream.addedPeer2Stream) { return; }
+
+                        addVideoToHTML(viewersStream);
+                        viewersStream.addedPeer2Stream = true;
+                    });
+
+                    /* Explain this function */
+                    let data_connection_start = my_peer.connect(joiningPeerID);
+                    data_connection_start.on("open", () => {
+
+                        data_connection_start.on("data", (message) => {
+                            addMessageToChat(message);
+                        });
+
+                        arr_of_data_connections.push(data_connection_start);
+                    });
+
+                });
+
+                /* This event occurs when some other peer is calling us. The anonymous function gets passed in
+                 * a mediaConnection object, so to respond to their call, we are going to send them our video
+                 * stream through the media connection. We then set an event listener on the mediaStream object
+                 * that listens for if the other peer sent us their video stream through the connection.
+                 */
+                my_peer.on('call', (mediaConnectionEnd) => {
+                    
+                    mediaConnectionEnd.answer(my_stream);
+
+                    mediaConnectionEnd.on("stream", (viewersStream) => {
+
+                        /* Explain the if */
+                        if (viewersStream.addedPeer1Stream) { return; }
+
+                        addVideoToHTML(viewersStream);
+                        viewersStream.addedPeer1Stream = true;
+                    });
+
+                    /* Explain this function */
+                    my_peer.on('connection', (dataConnectionEnd) => {
+
+                        dataConnectionEnd.on('open', () => {
+
+                            dataConnectionEnd.on("data", (message) => {
+                                addMessageToChat(message);
+                            });
+
+                            arr_of_data_connections.push(dataConnectionEnd);
+                        });
+                    });
+                })
+
+                addVideoToHTML(my_stream);
+            }
+
+            getVideoAndAddHandlers();
+
+            let chat_input = document.querySelector("#chat-input");
+
+            chat_input.addEventListener("keydown", (e) => {
+                /* Checks if ENTER key was pressed down in the textbox */
+                if (e.key !== "Enter") { return; }
+
+                let message = chat_input.value;
+
+                /* Display message to chat our chat box */
+                addMessageToChat(message);
+
+                /* Now, send message to every other peer */
+                arr_of_data_connections.forEach((curr_connection) => {
+                    curr_connection.send(message);
+                });
+            });
 
             // Initializes the stream to be on standby
             document.getElementById("streamStatus").innerHTML = "STANDBY";
