@@ -28,6 +28,10 @@
                 <div id="stream-container"> 
                     
                 </div>
+
+                <div id="users-video-container">
+
+                </div>
             </div>    
             
             <div id="file-div"> 
@@ -36,6 +40,7 @@
             </div>
 
             <div id="chat-div">
+                <div> <span onclick=""> Chat </span> <span> Participants </span></div>
                 <div id="chat-box">  </div>
                 <!-- Line 150 will be the chat box when implemented (INCOMPLETE) -->
                 <input type="text" id="chat-input" placeholder="Type here ...">
@@ -71,34 +76,52 @@
 
 
         <!-- imports PeerJS and SocketIO on the client side -->
-        <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" > </script>
-        <script src="/socket.io/socket.io.js" ></script>
+        <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"> </script>
+        <script src="/socket.io/socket.io.js"></script>
 
         <script>
             "use strict";
 
             let arr_of_data_connections = [], chat_box = document.querySelector("#chat-box");
 
-            function addVideoToHTML(vid_stream) {
+            function addVideoToHTML(vid_stream, location) {
                 /* TODO: place the given stream into some html container */
 
-                let stream_container = document.querySelector("#stream-container");
                 let video_elem = document.createElement("video");
 
                 video_elem.setAttribute("class", "stream");
-
+                video_elem.isExpanded = false;
                 video_elem.srcObject = vid_stream;
                 video_elem.addEventListener("loadedmetadata", () => {
                     video_elem.play();
                 });
 
-                stream_container.appendChild(video_elem);
+                video_elem.addEventListener("dblclick", () => { 
+
+                    if (!video_elem.isExpanded) { video_elem.setAttribute("class", "videoToExpand"); }
+                    else { video_elem.setAttribute("class", "stream"); }
+
+                    /* Negate the boolean field variable, then assign it back */
+                    video_elem.isExpanded = !(video_elem.isExpanded);
+
+                    /* Somehow retrieve the element that was double clicked, 
+                     * then give it a css class that expands it*/
+
+                });
+
+                location.appendChild(video_elem);
             }
 
-            function addMessageToChat(message) {
+            function addMessageToChat(message, sender) {
 
                 let message_div = document.createElement('div');
+                
+                message_div.setAttribute("class", "chat-message");
                 message_div.innerText = message;
+
+                let color = (sender === "my message") ? "blue" : "whitesmoke";
+                message_div.setAttribute("style", `background-color: ${color}`);
+                
                 chat_box.appendChild(message_div);
                 
                 return;
@@ -110,53 +133,49 @@
                 const my_stream = await (navigator.mediaDevices).getUserMedia( {video: true, audio: true } );
                 
                 /* creates socket that connects to the server found at localhost root path */
-                const socket = io("/"), my_peer = new Peer(), sessID = "<%= roomID %>";
+                const socket = io("/"), my_peer = new Peer(), sessID = "<%= roomID %>", admin = "<%= isCreator %>";
                 
                 /* This event occurs when a connection with the peer server is established.
                  * Once it's established, we get back our peer id, so that's when we want to join 
                  * the socket room, so we can send them our ID and connect with the other sockets */
                 my_peer.on("open", (myPeerID) => {
 
-
-                    console.log("My ID: " + myPeerID);
+                    console.log("My Peer ID: " + myPeerID);
 
                     socket.emit("join-room", sessID, myPeerID);
                 });
 
                 /* Adding event listener on our socket that listens for a new socket joining.
-                 * When a new socket has joined the socket group, then we'll be sent their PeerID.
-                 * At this point, we want to establish a connection with the peer whose PeerID we have.
-                 * To do this, we 'call' them, this creates the connection between us. Then, we need to add
-                 * an event listener to this connection in case the remote peer sends their own stream to us.
-                 */
+                 * When a new socket has joined the socket group, then we'll be sent their PeerID */
                 socket.on('viewer joining', (joiningPeerID) => {
 
+                    /* Call to establish a media/ video connection with the peer whose PeerID we have.
+                     * Then, we need to add an event listener to this connection in case the remote peer 
+                     * sends their own stream to us. */
                     let media_connection_start = my_peer.call(joiningPeerID, my_stream);
                     media_connection_start.on("stream", (viewersStream) => {
 
                         /* Explain the if */
                         if (viewersStream.addedPeer2Stream) { return; }
 
-                        addVideoToHTML(viewersStream);
+                        addVideoToHTML(viewersStream, document.querySelector("#users-video-container"));
                         viewersStream.addedPeer2Stream = true;
                     });
 
-                    /* Explain this function */
+                    /* Connecting to PeerJS server to connect with target peer.
+                     * Gives us an data-connection endpoint where we can listen 
+                     * for messages being sent to us. */
                     let data_connection_start = my_peer.connect(joiningPeerID);
-                    data_connection_start.on("open", () => {
-
-                        data_connection_start.on("data", (message) => {
-                            addMessageToChat(message);
-                        });
-
-                        arr_of_data_connections.push(data_connection_start);
+                    data_connection_start.on("data", (message) => {
+                        addMessageToChat(message, "their message");
                     });
 
+                    arr_of_data_connections.push(data_connection_start);
                 });
 
                 /* This event occurs when some other peer is calling us. The anonymous function gets passed in
                  * a mediaConnection object, so to respond to their call, we are going to send them our video
-                 * stream through the media connection. We then set an event listener on the mediaStream object
+                 * stream through the media connection. We then set an event lnisteer on the mediaStream object
                  * that listens for if the other peer sent us their video stream through the connection.
                  */
                 my_peer.on('call', (mediaConnectionEnd) => {
@@ -168,27 +187,28 @@
                         /* Explain the if */
                         if (viewersStream.addedPeer1Stream) { return; }
 
-                        addVideoToHTML(viewersStream);
+                        addVideoToHTML(viewersStream, document.querySelector("#users-video-container"));
                         viewersStream.addedPeer1Stream = true;
                     });
+                });
 
-                    /* Explain this function */
-                    my_peer.on('connection', (dataConnectionEnd) => {
+                /* If someone is trying to make a data/ message connection with us, then
+                 * we want to listen for that event. Once that event is triggered, then
+                 * we want to listen to the event of data being sent through this connection */
+                my_peer.on('connection', (dataConnectionEnd) => {
 
-                        dataConnectionEnd.on('open', () => {
-
-                            dataConnectionEnd.on("data", (message) => {
-                                addMessageToChat(message);
-                            });
-
-                            arr_of_data_connections.push(dataConnectionEnd);
-                        });
+                    dataConnectionEnd.on("data", (message) => {
+                        addMessageToChat(message, "their message");
                     });
-                })
 
-                addVideoToHTML(my_stream);
+                    arr_of_data_connections.push(dataConnectionEnd);
+                });
+            
+                /* Add my stream to the DOM */
+                addVideoToHTML(my_stream, document.querySelector("#stream-container"));
             }
 
+            /* Calls the async function defined right above. Could've used IIFE */
             getVideoAndAddHandlers();
 
             let chat_input = document.querySelector("#chat-input");
@@ -199,8 +219,11 @@
 
                 let message = chat_input.value;
 
+                /* Will clear the current text in the input */
+                chat_input.value = "";
+
                 /* Display message to chat our chat box */
-                addMessageToChat(message);
+                addMessageToChat(message, "my message");
 
                 /* Now, send message to every other peer */
                 arr_of_data_connections.forEach((curr_connection) => {

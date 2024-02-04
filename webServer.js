@@ -26,6 +26,10 @@ async function serverConfigAndStart() {
           database_name = (process.env).DATABASE,
           database_collection = (process.env).COLLECTION;
 
+    /**************************************************************************************************************
+     ******************************************** SETTING UP DATABASE *********************************************
+     **************************************************************************************************************/
+
     const uri = `mongodb+srv://${name}:${password}@projects.y9tuif0.mongodb.net/?retryWrites=true&w=majority`,
           client = new MongoClient(uri, {
               serverApi: {
@@ -41,6 +45,10 @@ async function serverConfigAndStart() {
     await client.connect();
 
     const sessions_db = client.db(database_name).collection(database_collection);
+
+    /**************************************************************************************************************
+     ***************************************** SETTING UP SOCKET MANAGER ******************************************
+     **************************************************************************************************************/
 
     /* Whenever a socket connects with the server, call this anonymous function passing in that socket */
     socketManager.on("connection", (connecting_socket) => {
@@ -79,6 +87,10 @@ async function serverConfigAndStart() {
     
         });
     });
+
+    /**************************************************************************************************************
+     ***************************************** SETTING UP EXPRESS ROUTES ******************************************
+     **************************************************************************************************************/
 
     /* Sets destination of where the templates are and specifies which type of engine we'll use */
     app.set("views", path.resolve(__dirname, "./templates"));
@@ -141,9 +153,9 @@ async function serverConfigAndStart() {
         res.render("createConfig");
     });
 
-    app.get("/session/:id", (req, res) => {
+    app.get("/session", (req, res) => {
 
-        res.render("sessions.ejs", { roomID: (req.params).id });
+        res.render("sessions.ejs", { roomID: (req.query).room_id, isCreator: (req.query).is_creator});
     });
 
     app.post("/create/done", async (req, res) => {
@@ -161,7 +173,7 @@ async function serverConfigAndStart() {
         await sessions_db.insertOne(sess);
 
         /* Will perform a GET request to this endpoint (I think) as if the clients made it */
-        res.redirect(`/session/${session_id}`);
+        res.redirect(`/session?room_id=${session_id}&is_creator=true`);
     });
 
     console.log("Web server listening on port: 5000")
