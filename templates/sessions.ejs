@@ -5,8 +5,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="/assets/sessions.css">
 
-        
-
         <title>Session</title>
     
     </head>
@@ -18,7 +16,7 @@
             <!-- div that allows us to have to headers within the same line -->
             <div id="stream-and-header-container">
                 
-                <div id="header-div">
+                <div class="header-div">
                     <!-- div for innerHTML that changes stream status depending if user is live or not -->
                     <span id="streamStatus"> </span>
                     <span id="recordCircle"> </span>
@@ -29,21 +27,22 @@
                     
                 </div>
 
-                <div id="users-video-container">
+                <div id="peers-video-container">
 
                 </div>
             </div>    
             
             <div id="file-div"> 
+                <div class="header-div"> Files </div>
                 <!-- line 144 will be where the user can store files (INCOMPLETE) -->
                 <input type="text" value="Files go here?" id="fileFolder">
             </div>
 
             <div id="chat-div">
-                <div> <span onclick=""> Chat </span> <span> Participants </span></div>
+                <div class="header-div"> Chat </div>
                 <div id="chat-box">  </div>
                 <!-- Line 150 will be the chat box when implemented (INCOMPLETE) -->
-                <input type="text" id="chat-input" placeholder="Type here ...">
+                <input type="text" id="chat-input" class="blinking-cursor" placeholder="Type here ...">
             </div> 
 
             <!-- Creates a popup -->
@@ -63,16 +62,14 @@
             </div>
         </div>
 
-        <!-- The div contains the start recording, end recording, and info buttons -->
+        <!-- The div contains the start recording, end recording, and info buttons
         <div id="bottom-div">
-            <!-- Red Button -->
             <button id="toggleStream" class="streamButtons">GO LIVE</button>
             
-            <!-- Black Button -->
             <button id="quitStream" class="streamButtons">END LIVE</button>
 
             <button type="button" id="infoButton"> SESSION INFO </button>
-        </div>
+        </div> -->
 
 
         <!-- imports PeerJS and SocketIO on the client side -->
@@ -119,8 +116,9 @@
                 message_div.setAttribute("class", "chat-message");
                 message_div.innerText = message;
 
-                let color = (sender === "my message") ? "blue" : "whitesmoke";
-                message_div.setAttribute("style", `background-color: ${color}`);
+                let color = (sender === "my message") ? "rgb(135,206,235)" : "white";
+                let align = (sender === "my message") ? "flex-end" : "flex-start";
+                message_div.setAttribute("style", `background-color: ${color}; align-self: ${align}`);
                 
                 chat_box.appendChild(message_div);
                 
@@ -158,7 +156,7 @@
                         /* Explain the if */
                         if (viewersStream.addedPeer2Stream) { return; }
 
-                        addVideoToHTML(viewersStream, document.querySelector("#users-video-container"));
+                        addVideoToHTML(viewersStream, document.querySelector("#peers-video-container"));
                         viewersStream.addedPeer2Stream = true;
                     });
 
@@ -187,7 +185,7 @@
                         /* Explain the if */
                         if (viewersStream.addedPeer1Stream) { return; }
 
-                        addVideoToHTML(viewersStream, document.querySelector("#users-video-container"));
+                        addVideoToHTML(viewersStream, document.querySelector("#peers-video-container"));
                         viewersStream.addedPeer1Stream = true;
                     });
                 });

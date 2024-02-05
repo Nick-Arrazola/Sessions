@@ -10,7 +10,7 @@ body {
 #top-div {
     display: flex;
     /* border: 1px solid blue; */
-    height: 95%;
+    height: 100%;
 }
 
 #stream-and-header-container {
@@ -21,26 +21,22 @@ body {
     
     /* border: 1px solid green; */
     /* padding-left: 10px; */
-
 }
 
-#stream-and-header-container #header-div {
+.header-div {
     
     /* Making this a flex box so that I can vertically center the children (stream status and red circle) */
     display: flex;
     align-items: center;
-    height: 8%;
+    height: 6%;
     background-color: #312244;
-    border-bottom: .5px solid rgba(255, 255, 255, 0.374);
+    /* border-bottom: .5px solid rgba(255, 255, 255, 0.374); */
     /* border: 1px solid palevioletred; */
-}
 
-#stream-and-header-container #header-div #streamStatus {
+    padding-left: 10px;
     font-size: 30px;
     font-weight: bold;
-    margin-right: 10px;
     color: white;
-    /* border: 1px solid rgb(238, 255, 0); */ 
 }
 
 /* Style for the red circle when stream is live */
@@ -74,10 +70,10 @@ body {
 #stream-and-header-container #stream-container {
 
     box-sizing: border-box;
-    height: 68%;
+    height: 70%;
     width: 100%;
-    padding: 13px;
-    background-color: #272640;
+    padding: 20px;
+    background-color: #212F45;
 
     /* border: 1px dashed gold; */
 }
@@ -87,15 +83,15 @@ body {
     height: 100%;
 }
 
-#stream-and-header-container #users-video-container {
+#stream-and-header-container #peers-video-container {
 
     /* border: 1px solid red; */
     box-sizing: border-box;
     display: flex;
-    padding: 10px;
-    /* gap: 10px; */
+    padding: 0px 20px 20px 20px;
+    gap: 20px;
     height: 24%;
-    background-color: #272640;
+    background-color: #212F45;
 
     /* justify-content: space-evenly;     */
 
@@ -125,7 +121,7 @@ body {
     top: 50%;
     left: 50%;
 
-    padding: 100px 100px 100px 100px;
+    padding: 100px 200px 100px 200px;
     box-sizing: border-box;
 
     object-fit: fill;
@@ -163,23 +159,32 @@ body {
 }
 
 #chat-div #chat-box {
-    height: 95%;
-    /* display: flex;
-    flex-direction: column; */
+    height: 89%;
+    display: flex;
+    flex-direction: column;
     overflow-y: scroll;
 }
 
 #chat-div #chat-input {
     height: 5%;
     width: 100%;
-    border: .5px solid black;
-    padding: 0px;
+    /* border: .5px solid black; */
+    padding: 0px 5px 0px 5px;
+    box-sizing: border-box;
+
+    /* Removes the border from the input textbox */
+    border: none;
+
+    /* Removes the black outline when focus is active */
+    outline: none;
 }
 
 .chat-message {
-    border-radius: 20px;
-    padding: 3px;
-    margin: 6px;
+    border-radius: 12px;
+    padding: 8px;
+    margin: 10px;
+
+    display: inline;
 }
 
 
@@ -276,3 +281,20 @@ body {
     /* Pulls file from current diretory and imports it into our project */
     src: url('trip-sans-variable.ttf') format('truetype'); 
 }
+
+
+
+
+
+
+
+.blinking-cursor::after {
+    content: '|';
+    animation: blink 1s infinite;
+  }
+  
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
