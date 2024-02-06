@@ -34,8 +34,9 @@
             
             <div id="file-div"> 
                 <div class="header-div"> Files </div>
+                <div id="file-display"> </div>
                 <!-- line 144 will be where the user can store files (INCOMPLETE) -->
-                <input type="text" value="Files go here?" id="fileFolder">
+                <input type="file" id="file-input" multiple>
             </div>
 
             <div id="chat-div">
@@ -121,6 +122,34 @@
                 message_div.setAttribute("style", `background-color: ${color}; align-self: ${align}`);
                 
                 chat_box.appendChild(message_div);
+
+                /* Updates the position of the scroll bar to be at the very btttom
+                 * of the content/ chatbox. So, once the chat messages overflow the
+                 * box, the scroll bar will follow the most recent messages */
+                chat_box.scrollTop = chat_box.scrollHeight;
+
+                return;
+            }
+
+            function addFileToBoard(file_metadata_obj) {
+
+                // console.log(file_metadata_obj);
+
+                /* 'file_metadata_obj.fileContent' points to a Uint8Array, but the FILE Docs says I can't just pass that into the
+                 * constructor as is, I need to store that Uint8Array into another array, then pass in that array into the constructor */
+
+                /*                              DATA                         NAME                          OPTIONS OBJ          */
+                let file = new File([file_metadata_obj.fileContent], file_metadata_obj.fileName, {type: file_metadata_obj.fileType});
+                let file_url = URL.createObjectURL(file);
+                let anchorTag = document.createElement("a");
+
+                anchorTag.setAttribute("download", file.name); // sets the name to appear when file is downloaded
+                anchorTag.setAttribute("href", file_url);
+                anchorTag.setAttribute("style", "background-color: orange; color: white");
+                anchorTag.innerText = file.name; // displays name of file on the front-end
+                    
+                /* I add anchor tag to file display */
+                (document.querySelector("#file-display")).appendChild(anchorTag);
                 
                 return;
             }
@@ -128,7 +157,7 @@
             async function getVideoAndAddHandlers() {
 
                 /* returns a MediaStream containing my video and audio */
-                const my_stream = await (navigator.mediaDevices).getUserMedia( {video: true, audio: true } );
+                const my_stream = await (navigator.mediaDevices).getUserMedia( { video: true, audio: true } );
                 
                 /* creates socket that connects to the server found at localhost root path */
                 const socket = io("/"), my_peer = new Peer(), sessID = "<%= roomID %>", admin = "<%= isCreator %>";
@@ -164,8 +193,10 @@
                      * Gives us an data-connection endpoint where we can listen 
                      * for messages being sent to us. */
                     let data_connection_start = my_peer.connect(joiningPeerID);
-                    data_connection_start.on("data", (message) => {
-                        addMessageToChat(message, "their message");
+                    data_connection_start.on("data", (dataRecieved) => {
+
+                        if (typeof dataRecieved === "string") { addMessageToChat(dataRecieved, "their message") }
+                        else { addFileToBoard(dataRecieved); }
                     });
 
                     arr_of_data_connections.push(data_connection_start);
@@ -195,8 +226,11 @@
                  * we want to listen to the event of data being sent through this connection */
                 my_peer.on('connection', (dataConnectionEnd) => {
 
-                    dataConnectionEnd.on("data", (message) => {
-                        addMessageToChat(message, "their message");
+                    dataConnectionEnd.on("data", (dataRecieved) => {
+
+                        if (typeof dataRecieved === "string") { addMessageToChat(dataRecieved, "their message") }
+                        else { addFileToBoard(dataRecieved); }
+
                     });
 
                     arr_of_data_connections.push(dataConnectionEnd);
@@ -209,8 +243,26 @@
             /* Calls the async function defined right above. Could've used IIFE */
             getVideoAndAddHandlers();
 
+            let file_input = document.querySelector("#file-input");
             let chat_input = document.querySelector("#chat-input");
+        
+            /* Event listener responsible for retriving the file(s) selected */
+            file_input.addEventListener("change", () => { 
+                
+                let files_selected = file_input.files;
+                
+                /* For each person in the room, I need to send them all the files selected */
+                arr_of_data_connections.forEach( async (curr_connection) => {
 
+                    for (let file of files_selected) {
+                        /* Extracts contents of file as an ArrayBuffer, then convert into Uint8Array */
+                        let data = new Uint8Array(await file.arrayBuffer());
+                        curr_connection.send({ fileName: file.name, fileType: file.type, fileContent: data });
+                    }
+                });
+            });
+           
+            /* Event listener responsible for retriving what was typed into the chat input */
             chat_input.addEventListener("keydown", (e) => {
                 /* Checks if ENTER key was pressed down in the textbox */
                 if (e.key !== "Enter") { return; }
